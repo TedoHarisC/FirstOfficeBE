@@ -6,9 +6,11 @@ use App\Filament\Resources\OfficeSpaceResource\Pages;
 use App\Filament\Resources\OfficeSpaceResource\RelationManagers;
 use App\Models\OfficeSpace;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -24,6 +26,65 @@ class OfficeSpaceResource extends Resource
         return $form
             ->schema([
                 //
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+
+                Forms\Components\TextInput::make('address')
+                    ->required()
+                    ->maxLength(255),
+
+                Forms\Components\FileUpload::make('thumbnail')
+                    ->image()
+                    ->required(),
+
+                Forms\Components\TextArea::make('about')
+                    ->required()
+                    ->rows(10)
+                    ->cols(20),
+
+                // Repeater digunakan untuk menambahkan beberapa foto
+                Forms\Components\Repeater::make('photos')
+                    ->relationship('photos') // ini adalah nama relasi yang ada di model OfficeSpace (karena di dalam fillable yang sebenarnya tidak ada photos untuk OfficeSpace)
+                    ->schema([
+                        Forms\Components\FileUpload::make('photo')
+                            ->required()
+                    ]),
+                // Repeater digunakan untuk menambahkan beberapa fasilitas (repeater itu seperti sebuah multiple input yang bisa diisi)
+                Forms\Components\Repeater::make('benefits') // ini adalah nama relasi yang ada di model OfficeSpace (karena di dalam fillable yang sebenarnya tidak ada benefits untuk OfficeSpace)
+                    ->relationship('benefits')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                    ]),
+
+                Forms\Components\Select::make('city_id')
+                    ->relationship('city', 'name') // untuk menampilkan pilihan kota
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+
+                Forms\Components\TextInput::make('price')
+                    ->required()
+                    ->numeric()
+                    ->prefix('Rp'),
+
+                Forms\Components\TextInput::make('duration')
+                    ->required()
+                    ->numeric()
+                    ->prefix('Days'),
+
+                Forms\Components\Select::make('is_open')
+                    ->options([
+                        true => 'Open',
+                        false => 'Close'
+                    ])->required(),
+
+                Forms\Components\Select::make('is_full_booked')
+                    ->options([
+                        true => 'Not Available',
+                        false => 'Available'
+                    ])->required(),
             ]);
     }
 
@@ -32,9 +93,24 @@ class OfficeSpaceResource extends Resource
         return $table
             ->columns([
                 //
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\ImageColumn::make('thumbnail'),
+                Tables\Columns\TextColumn::make('city.name'),
+                Tables\Columns\IconColumn::make('is_full_booked')
+                    ->boolean()
+                    ->trueColor('danger')
+                    ->falseColor('success')
+                    ->trueIcon('heroicon-o-x-circle')
+                    ->falseIcon('heroicon-o-check-circle')
+                    ->label('Available'),
             ])
             ->filters([
                 //
+                SelectFilter::make('city_id')
+                    ->label('City')
+                    ->relationship('city', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
