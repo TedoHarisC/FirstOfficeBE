@@ -6,9 +6,13 @@ use App\Filament\Resources\BookingTransactionResource\Pages;
 use App\Filament\Resources\BookingTransactionResource\RelationManagers;
 use App\Models\BookingTransaction;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -23,7 +27,41 @@ class BookingTransactionResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+
+                Forms\Components\TextInput::make('booking_trx_id')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('phone_number')
+                    ->required()
+                    ->maxLength(255),
+
+                Forms\Components\TextInput::make('total_amount')
+                    ->required()
+                    ->numeric()
+                    ->prefix('Rp'),
+                Forms\Components\TextInput::make('duration')
+                    ->required()
+                    ->numeric()
+                    ->prefix('Days'),
+                DatePicker::make('started_at')
+                    ->required()
+                    ->placeholder('Select Start Date'),
+                DatePicker::make('ended_at')
+                    ->required()
+                    ->placeholder('Select End Date'),
+                Select::make('is_paid')
+                    ->options([
+                        true => 'Paid',
+                        false => 'Unpaid',
+                    ])->required(),
+                Select::make('office_space_id')
+                    ->relationship('officeSpace', 'name')
+                    ->required()
+                    ->searchable()
+                    ->preload(),
             ]);
     }
 
@@ -32,6 +70,24 @@ class BookingTransactionResource extends Resource
         return $table
             ->columns([
                 //
+                TextColumn::make('booking_trx_id')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('name')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('officeSpace.name')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('started_at')
+                    ->date(),
+                IconColumn::make('is_paid')
+                    ->boolean()
+                    ->trueColor('success')
+                    ->falseColor('danger')
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->label('Sudah Bayar?')
             ])
             ->filters([
                 //
