@@ -15,14 +15,6 @@ class OfficeSpaceController extends Controller
         return OfficeSpaceResource::collection($officeSpaces);
     }
 
-    /**
-     * Show a single city.
-     *
-     * @authenticated
-     * @responseFile responses/city.show.json
-     * @param  \App\Models\City  $city
-     * @return \Illuminate\Http\Response
-     */
     public function show(OfficeSpace $officeSpace) // model binding (dan untuk detail salah satu kota nya)
     {
         $officeSpace->load(['city', 'photos', 'benefits']);

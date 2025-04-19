@@ -12,11 +12,11 @@ Route::get('/user', function (Request $request) {
 
 //City
 Route::get('/city/{city:slug}', [CityController::class, 'show']);
-Route::apiResources('/cities', CityController::class); // index included all crud API
+Route::apiResource('/cities', CityController::class); // index included all crud API
 
 //Office
 Route::get('/office/{officeSpace:slug}', [OfficeSpaceController::class, 'show']);
-Route::apiResources('/offices', OfficeSpaceController::class);
+Route::apiResource('/offices', OfficeSpaceController::class);
 
 //Booking
 Route::post('/booking-transaction', [BookingTransactionController::class, 'store']);

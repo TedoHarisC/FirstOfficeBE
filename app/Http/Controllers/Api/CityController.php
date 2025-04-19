@@ -16,14 +16,6 @@ class CityController extends Controller
         return CityResource::collection($cities);
     }
 
-    /**
-     * Show a single city.
-     *
-     * @authenticated
-     * @responseFile responses/city.show.json
-     * @param  \App\Models\City  $city
-     * @return \Illuminate\Http\Response
-     */
     public function show(City $city) // model binding (dan untuk detail salah satu kota nya)
     {
         $city->load('officeSpaces.city', 'officeSpaces.photos');
